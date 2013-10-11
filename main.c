@@ -14,13 +14,17 @@ int getAddr(HANDLE hProcess, DWORD pid, void** out_addr)
 	while (ret) {
 		//printf("%p\t\%s\n", me.modBaseAddr, me.szModule);
 		if (strcmp(me.szModule, "League of Legends.exe") == 0) {
-			void* baseAddr = me.modBaseAddr + 0x0071EE54;//base
+			void* baseAddr = me.modBaseAddr + 0xC6F9BC;//base
+			/*
 			void* readValue = NULL;
 			if (ReadProcessMemory(hProcess,(void*)baseAddr,&readValue,sizeof(readValue),0) == 0) {
 				printf("ReadProcessMemory failed (at get zoom addr) \n");
 				return -1;
 			}
-			*out_addr = (void*)(readValue + 0x10);//offset
+			*out_addr = (void*)(readValue + 0x0);//offset
+			*/
+			//printf("Zoom Limit Addr is %08x\n", (unsigned int)*out_addr);
+			*out_addr = baseAddr;
 			printf("Zoom Limit Addr is %08x\n", (unsigned int)*out_addr);
 			return 0;
 		}
