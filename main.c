@@ -10,32 +10,15 @@ int getLimitAddr(BYTE* pModBuf, DWORD bufSize, void** ppMaxDestAddr_out)
 	BYTE* pattern = (BYTE*)"\xF3\x0F\x5C\xEA\xF3\x0F\x10\x05\xFF\xFF\xFF\xFF\x0F\x2F\xE8";
 	int patternSize = 15;
 	char* mask = "111111110000111"; //1 for opcode, 0 for address (32bit, small endian)
-
-	int pointerSize = sizeof(void*);
-	int copiedPointerBytes = 0;
-	BYTE* pByMaxDestAddr = malloc(pointerSize);
-
 	int match = 0;
 	DWORD offset = 0;
-
-	if (pByMaxDestAddr == NULL) return -1;
 
 	while (offset != bufSize) {
 		if (mask[match] == *"0" || pModBuf[offset] == pattern[match]) {
 			if (++match == patternSize) {
 				//matched, copy pointer
-				while(copiedPointerBytes != pointerSize) {
-					if (mask[--match] == *"0") {
-						pByMaxDestAddr[pointerSize - 1 - copiedPointerBytes++] = pModBuf[offset];
-						if (copiedPointerBytes == pointerSize){
-							*ppMaxDestAddr_out = (void*)*(DWORD*)pByMaxDestAddr;//...又尼玛反过来了
-							free(pByMaxDestAddr);
-							return 0;
-						}
-						
-					}
-					offset--;
-				}
+				*ppMaxDestAddr_out = (void*)*(DWORD*)&pModBuf [ offset -  patternSize + ( strstr( mask , "0" ) - mask ) + 1 ];//信息量略大啊
+				return 0;
 			}
 		}else{
 			match = 0;
